@@ -1,0 +1,62 @@
+<h1>Productos Realtime</h1>
+
+<div id="notificacion" style="display:none; padding: 10px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin-bottom: 10px; border-radius: 4px;"></div>
+
+<form id="addForm">
+  <input type="text" name="title" placeholder="Título" required />
+  <input type="text" name="description" placeholder="Descripción" required />
+  <input type="text" name="code" placeholder="Código" required />
+  <input type="number" name="price" placeholder="Precio" required />
+  <input type="number" name="stock" placeholder="Stock" required />
+  <input type="text" name="category" placeholder="Categoría" required />
+  <button type="submit">Agregar</button>
+</form>
+
+<ul id="productList">
+  {{#each products}}
+    <li><strong>{{title}}</strong> - {{description}} - ${{price}}</li>
+  {{/each}}
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  socket.on('connect', () => {
+    console.log('✅ Conectado al servidor WebSocket con id', socket.id);
+  });
+
+  socket.on('connect_error', err => {
+    console.error('❌ Error de conexión con WebSocket:', err);
+  });
+
+  const form = document.getElementById('addForm');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    socket.emit('newProduct', data);
+    form.reset();
+    showNotificacion('Producto agregado');
+  });
+
+  socket.on('updateProducts', products => {
+    console.log('⚡ updateProducts recibido:', products);
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    products.forEach(p => {
+      const li = document.createElement('li');
+      li.textContent = `${p.title} - ${p.description} - $${p.price}`;
+      list.appendChild(li);
+    });
+  });
+
+  function showNotificacion(message) {
+  const notif = document.getElementById('notificacion');
+  notif.textContent = message;
+  notif.style.display = 'block';
+
+  setTimeout(() => {
+    notif.style.display = 'none';
+  }, 3000);
+  }
+</script>
