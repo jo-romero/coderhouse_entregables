@@ -1,0 +1,53 @@
+<h1>Listado de Productos - Entrega 3</h1>
+<h3>Posibles parámetros (ejemplo): http://localhost:8080/?limit=2&query=Tools&page=1?sort=asc</h3>
+<h4>sort ordena por precio y puede ser: asc o desc, query filtra por categoría, limit es la cantidad de registros x página</h4>
+<ul>
+  <!--
+  {{#each products}}
+    <li>ID: <strong>{{id}} - {{title}}</strong> - {{description}} - ${{price}}</li>
+  {{/each}}
+  -->
+  <a href="/cart/6882b6040a3785d55459341a">Ver mi carrito (hardcodeo a 6882b6040a3785d55459341a porque no tengo manejo de carritos en este programa)</a>
+  <Br>  <Br>
+  {{#each products}}
+    <li>
+      <button onclick="addToCart('{{_id}}')">Agregar al carrito</button>
+      ID: {{_id}} - Title: {{title}} - Description: {{description}} - Category (Query): {{category}} - ${{price}}
+    </li>
+  {{/each}}
+</ul>
+
+<div>
+  {{#if hasPrevPage}}
+    <a href="{{prevLink}}">Página anterior</a>
+  {{/if}}
+
+  <span>Página actual: {{page}}</span>
+
+  {{#if hasNextPage}}
+    <a href="{{nextLink}}">Página siguiente</a>
+  {{/if}}
+</div>
+
+
+<script>
+  const cartId = '6882b6040a3785d55459341a'; // lo hardcodeo porque este proyecto no incluye el manejo/generación de carritos x usuario
+
+  async function addToCart(productId) {
+    try {
+      const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Producto agregado al carrito');
+      } else {
+        alert(`Error: ${data.error || data.message}`);
+      }
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error);
+      alert('Error inesperado');
+    }
+  }
+</script>
